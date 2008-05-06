@@ -1,4 +1,4 @@
-IIS Reverse Proxy
+IIS Reverse Proxy - Paul Johnston, http://pajhome.org.uk/
 -----------------
 
 This is a simple C# script to add reverse proxy functionality to the IIS web 
@@ -67,10 +67,3 @@ This script has taken inspiration from two existing scripts:
    
 2) IIS Reverse Proxy, by John Pierce, john@pierce.name
    This is no longer online
-    
-Todo List
----------
-
-Security test: is Remote-User header spoofing possible?
-Test redirects
-Test HTTPS

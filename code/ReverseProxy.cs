@@ -5,27 +5,21 @@ using System.Net;
 using System.Text;
 using System.IO;
 
-
 namespace ReverseProxy
 {
 	public class ReverseProxy: IHttpHandler
-	{
-        string proxyUrl {
-            get {
-                return ConfigurationSettings.AppSettings["ProxyUrl"];
-            }
-        }
-	
+	{	
 		public void ProcessRequest(HttpContext context)
 		{			
 			// Create the web request to communicate with the back-end site
-			string remoteUrl;
-			remoteUrl = context.Request.Url.AbsoluteUri.Replace("http://"+context.Request.Url.Host+context.Request.ApplicationPath, proxyUrl);
+			string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] + 
+			        context.Request.Path + "?" + context.Request.QueryString;
 			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(remoteUrl);
 			request.Method = context.Request.HttpMethod;
+			request.ContentType = context.Request.ContentType;
             request.Headers["Remote-User"] = HttpContext.Current.User.Identity.Name;
             foreach(String each in context.Request.Headers)
-                if (!WebHeaderCollection.IsRestricted(each)) 
+                if (!WebHeaderCollection.IsRestricted(each) && each != "Remote-User") 
                     request.Headers.Add(each, context.Request.Headers.Get(each));           
             if (context.Request.HttpMethod == "POST")
             {
