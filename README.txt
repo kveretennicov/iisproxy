@@ -1,0 +1,76 @@
+IIS Reverse Proxy
+-----------------
+
+This is a simple C# script to add reverse proxy functionality to the IIS web 
+server. It has been very useful for hosting TurboGears applications behind 
+IIS, and could be used for other frameworks like Ruby on Rails and Django.
+
+Using The Script
+----------------
+
+1)  Create the directory you want to be proxied, within the webroot
+2)  Copy the "bin" subdirectory from the IIS proxy souce into the directory
+3)  In IIS Manager, locate this directory and select "Properties"
+4)  In the "Directory" tab, under "Application Settings", select "Create"
+5)  Click "Configuration"
+6)  In the "Mappings" tab, under "Wildcard application maps", select "Insert"
+7)  Enter "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\aspnet_isapi.dll"
+8)  Uncheck "Verify that file exists"
+9)  Click "Ok" three times to return to IIS Manager
+10) In the directory, create a file web.config with the following content,
+    replacing {URL} with the URL of the back-end site
+
+<configuration>
+    <appSettings>
+        <add key="proxyUrl" value="{URL}" />
+    </appSettings>
+    <system.web>
+        <httpHandlers>
+            <add verb="*" path="*" type="ReverseProxy.ReverseProxy, ReverseProxy" />
+        </httpHandlers>
+    </system.web>
+</configuration>
+
+
+Why IIS?
+--------
+
+Serving behind IIS is useful for IIS-specific features, and also if an
+existing server is already using IIS. I found the IIS implementation of
+integrated Windows authentication to be very reliable, while mod_auth_sspi
+for Apache has some problems, including issues with inter-forest trusts.
+
+Aims of Script
+--------------
+
+The script aims to be simple and to get in the way as little as possible. It
+does not do any link rewriting - the back-end application must be configured
+to use a matching root. The proxy passes nearly everything in both directions,
+including POST data, headers (e.g. Content-Type), cookies, etc.
+
+User Identity
+-------------
+
+The script adds the current user name into the back-end request, as the
+Remote-User header. Relying on this for security can carry some risks - a
+header is potentially spoofable. The back-end application must be deployed so
+it can only be accessed from trusted sources, usually by making it only listen
+on the 127.0.0.1 interface.
+
+Credits
+-------
+
+This script has taken inspiration from two existing scripts:
+
+1) Simple HTTP Reverse Proxy with ASP.NET and IIS, by Vincent Brossier
+   http://www.123aspx.com/redir.aspx?res=32037
+   
+2) IIS Reverse Proxy, by John Pierce, john@pierce.name
+   This is no longer online
+    
+Todo List
+---------
+
+Security test: is Remote-User header spoofing possible?
+Test redirects
+Test HTTPS
