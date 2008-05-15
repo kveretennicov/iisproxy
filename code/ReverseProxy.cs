@@ -15,6 +15,7 @@ namespace ReverseProxy
 			string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] + 
 			        context.Request.Path + "?" + context.Request.QueryString;
 			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(remoteUrl);
+			request.AllowAutoRedirect = false;
 			request.Method = context.Request.HttpMethod;
 			request.ContentType = context.Request.ContentType;
             request.Headers["Remote-User"] = HttpContext.Current.User.Identity.Name;
@@ -36,13 +37,18 @@ namespace ReverseProxy
 			catch(System.Net.WebException we)
 			{
 			    response = (HttpWebResponse) we.Response;
-			    context.Response.StatusCode = (int) response.StatusCode;
 			    // TBD: handle case where we.Response is null
 			}
 
             // Copy response from server back to client
+            context.Response.StatusCode = (int) response.StatusCode;
+            context.Response.StatusDescription = response.StatusDescription;
+            if(response.Headers.Get("Location") != null)
+                context.Response.AddHeader("Location", context.Request.Url.GetLeftPart(UriPartial.Authority) + 
+                    response.Headers.Get("Location").Substring(ConfigurationSettings.AppSettings["ProxyUrl"].Length));
             foreach(String each in response.Headers)
-                context.Response.AddHeader(each, response.Headers.Get(each));           
+                if(each != "Location")
+                    context.Response.AddHeader(each, response.Headers.Get(each));           
 			CopyStream(response.GetResponseStream(), context.Response.OutputStream);
 			response.Close();
 			context.Response.End();
