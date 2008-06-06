@@ -13,13 +13,16 @@ namespace ReverseProxy
 	    EventLog event_log;	    
 	    public ReverseProxy()
 	    {
-            // Create the event logging stream		    
-            string source = "iisproxy";
-            if (!EventLog.SourceExists(source)) {
-                EventLog.CreateEventSource(source, "Application");
+            // Create the event logging stream
+            if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
+            {
+                string source = "iisproxy";
+                if (!EventLog.SourceExists(source)) {
+                    EventLog.CreateEventSource(source, "Application");
+                }
+                event_log = new EventLog();
+                event_log.Source = source;
             }
-            event_log = new EventLog();
-            event_log.Source = source;
 	    }
 	    
 		public void ProcessRequest(HttpContext context)
