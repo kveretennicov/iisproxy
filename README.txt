@@ -18,7 +18,8 @@ Using The Script
 8)  Uncheck "Verify that file exists"
 9)  Click "Ok" three times to return to IIS Manager
 10) In the directory, create a file web.config with the following content,
-    replacing {URL} with the URL of the back-end site
+    replacing {URL} with the URL of the back-end site. Note that the URL 
+    must not have any path component, or a trailing slash.
 
 <configuration>
     <appSettings>

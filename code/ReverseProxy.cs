@@ -59,9 +59,9 @@ namespace ReverseProxy
             if(response.Headers.Get("Location") != null)                
             {   
                 if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
-                    event_log.WriteEntry("Back-end redirecting to: " + response.Headers.Get("Location"), EventLogEntryType.Information);                
-                context.Response.AddHeader("Location", 
-                        context.Request.Url.GetLeftPart(UriPartial.Authority) + response.Headers.Get("Location").Substring(8));
+                    event_log.WriteEntry("Back-end redirecting to: " + response.Headers.Get("Location"), EventLogEntryType.Information);
+                context.Response.AddHeader("Location", context.Request.Url.GetLeftPart(UriPartial.Authority) +
+                    response.Headers.Get("Location").Substring(ConfigurationSettings.AppSettings["ProxyUrl"].Length));
             }
             foreach(String each in response.Headers)
                 if(each != "Location")
