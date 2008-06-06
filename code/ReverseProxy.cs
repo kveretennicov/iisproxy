@@ -4,13 +4,26 @@ using System.Web;
 using System.Net;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 namespace ReverseProxy
 {
 	public class ReverseProxy: IHttpHandler
 	{	
+	    EventLog event_log;	    
+	    public ReverseProxy()
+	    {
+            // Create the event logging stream		    
+            string source = "iisproxy";
+            if (!EventLog.SourceExists(source)) {
+                EventLog.CreateEventSource(source, "Application");
+            }
+            event_log = new EventLog();
+            event_log.Source = source;
+	    }
+	    
 		public void ProcessRequest(HttpContext context)
-		{			
+		{			    		
 			// Create the web request to communicate with the back-end site
 			string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] + 
 			        context.Request.Path + "?" + context.Request.QueryString;
@@ -43,9 +56,13 @@ namespace ReverseProxy
             // Copy response from server back to client
             context.Response.StatusCode = (int) response.StatusCode;
             context.Response.StatusDescription = response.StatusDescription;
-            if(response.Headers.Get("Location") != null)
-                context.Response.AddHeader("Location", context.Request.Url.GetLeftPart(UriPartial.Authority) + 
-                    response.Headers.Get("Location").Substring(ConfigurationSettings.AppSettings["ProxyUrl"].Length));
+            if(response.Headers.Get("Location") != null)                
+            {   
+                if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
+                    event_log.WriteEntry("Back-end redirecting to: " + response.Headers.Get("Location"), EventLogEntryType.Information);                
+                context.Response.AddHeader("Location", 
+                        context.Request.Url.GetLeftPart(UriPartial.Authority) + response.Headers.Get("Location").Substring(8));
+            }
             foreach(String each in response.Headers)
                 if(each != "Location")
                     context.Response.AddHeader(each, response.Headers.Get(each));           
