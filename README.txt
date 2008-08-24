@@ -8,18 +8,20 @@ IIS, and could be used for other frameworks like Ruby on Rails and Django.
 Using The Script
 ----------------
 
-1)  Create the directory you want to be proxied, within the webroot
-2)  Copy the "bin" subdirectory from the IIS proxy souce into the directory
-3)  In IIS Manager, locate this directory and select "Properties"
+1)  Create the directory you want to be proxied, within the webroot. We'll call
+    this the "proxy directory".
+2)  Copy the "bin" subdirectory from the IIS proxy souce into the proxy 
+    directory.
+3)  In IIS Manager, locate the proxy directory and select "Properties"
 4)  In the "Directory" tab, under "Application Settings", select "Create"
 5)  Click "Configuration"
 6)  In the "Mappings" tab, under "Wildcard application maps", select "Insert"
 7)  Enter "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\aspnet_isapi.dll"
 8)  Uncheck "Verify that file exists"
 9)  Click "Ok" three times to return to IIS Manager
-10) In the directory, create a file web.config with the following content,
-    replacing {URL} with the URL of the back-end site. Note that the URL 
-    must not have any path component, or a trailing slash.
+10) In the proxy directory, create a file web.config with the following 
+    content, replacing {URL} with the URL of the back-end site. Note that the 
+    URL must not have any path component, or a trailing slash.
 
 <configuration>
     <appSettings>
