@@ -1,6 +1,6 @@
 using System;
 using System.Configuration;
-using System.Web; 
+using System.Web;
 using System.Net;
 using System.Text;
 using System.IO;
@@ -9,8 +9,8 @@ using System.Diagnostics;
 namespace ReverseProxy
 {
     public class ReverseProxy: IHttpHandler
-    {   
-        EventLog event_log;     
+    {
+        EventLog event_log;
         public ReverseProxy()
         {
             // Create the event logging stream
@@ -24,11 +24,11 @@ namespace ReverseProxy
                 event_log.Source = source;
             }
         }
-        
+
         public void ProcessRequest(HttpContext context)
-        {                       
+        {
             // Create the web request to communicate with the back-end site
-            string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] + 
+            string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] +
                     context.Request.Path;
             if (context.Request.QueryString.ToString() != "")
                 remoteUrl += "?" + context.Request.QueryString;
@@ -37,10 +37,15 @@ namespace ReverseProxy
             request.Method = context.Request.HttpMethod;
             request.ContentType = context.Request.ContentType;
             request.UserAgent = context.Request.UserAgent;
+            string basicPwd = ConfigurationSettings.AppSettings.Get("basicPwd");
+            request.Credentials = basicPwd == null ?
+                CredentialCache.DefaultCredentials :
+                new NetworkCredential(HttpContext.Current.User.Identity.Name, basicPwd);
+            // The Remote-User header is non-ideal; included for compatibility
             request.Headers["Remote-User"] = HttpContext.Current.User.Identity.Name;
             foreach(String each in context.Request.Headers)
-                if (!WebHeaderCollection.IsRestricted(each) && each != "Remote-User") 
-                    request.Headers.Add(each, context.Request.Headers.Get(each));           
+                if (!WebHeaderCollection.IsRestricted(each) && each != "Remote-User")
+                    request.Headers.Add(each, context.Request.Headers.Get(each));
             if (context.Request.HttpMethod == "POST")
             {
                 Stream outputStream = request.GetRequestStream();
@@ -68,8 +73,8 @@ namespace ReverseProxy
             // Copy response from server back to client
             context.Response.StatusCode = (int) response.StatusCode;
             context.Response.StatusDescription = response.StatusDescription;
-            if(response.Headers.Get("Location") != null)                
-            {   
+            if(response.Headers.Get("Location") != null)
+            {
                 if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
                     event_log.WriteEntry("Back-end redirecting to: " + response.Headers.Get("Location"), EventLogEntryType.Information);
                 string urlSuffix = response.Headers.Get("Location");
@@ -79,25 +84,25 @@ namespace ReverseProxy
             }
             foreach(String each in response.Headers)
                 if(each != "Location")
-                    context.Response.AddHeader(each, response.Headers.Get(each));           
+                    context.Response.AddHeader(each, response.Headers.Get(each));
             CopyStream(response.GetResponseStream(), context.Response.OutputStream);
             response.Close();
             context.Response.End();
         }
-        
+
         static public void CopyStream(Stream input, Stream output) {
             Byte[] buffer = new byte[1024];
             int bytes = 0;
             while( (bytes = input.Read(buffer, 0, 1024) ) > 0 )
                 output.Write(buffer, 0, bytes);
         }
- 
+
         public bool IsReusable
         {
             get
             {
                 return true;
             }
-        }   
+        }
     }
 }
