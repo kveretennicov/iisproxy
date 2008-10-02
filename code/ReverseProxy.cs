@@ -41,6 +41,7 @@ namespace ReverseProxy
             request.Credentials = basicPwd == null ?
                 CredentialCache.DefaultCredentials :
                 new NetworkCredential(HttpContext.Current.User.Identity.Name, basicPwd);
+            request.PreAuthenticate = true;
             // The Remote-User header is non-ideal; included for compatibility
             request.Headers["Remote-User"] = HttpContext.Current.User.Identity.Name;
             foreach(String each in context.Request.Headers)
@@ -83,7 +84,7 @@ namespace ReverseProxy
                 context.Response.AddHeader("Location", context.Request.Url.GetLeftPart(UriPartial.Authority) + urlSuffix);
             }
             foreach(String each in response.Headers)
-                if(each != "Location")
+                if(each != "Location" && !WebHeaderCollection.IsRestricted(each))
                     context.Response.AddHeader(each, response.Headers.Get(each));
             CopyStream(response.GetResponseStream(), context.Response.OutputStream);
             response.Close();
