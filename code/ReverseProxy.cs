@@ -74,6 +74,7 @@ namespace ReverseProxy
             // Copy response from server back to client
             context.Response.StatusCode = (int) response.StatusCode;
             context.Response.StatusDescription = response.StatusDescription;
+            context.Response.ContentType = response.ContentType;
             if(response.Headers.Get("Location") != null)
             {
                 if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
