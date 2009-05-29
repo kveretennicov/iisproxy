@@ -82,6 +82,8 @@ the following to the appSettings:
 
         <add key="traceRedirect" value="on" />
 
+iisproxy may need to be given permission to access the error log. If you
+encounter problems, see http://support.microsoft.com/kb/329291
 
 Why IIS?
 --------
