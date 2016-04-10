@@ -14,7 +14,7 @@ namespace ReverseProxy
         public ReverseProxy()
         {
             // Create the event logging stream
-            if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
+            if(ConfigurationManager.AppSettings.Get("traceRedirect") != null)
             {
                 string source = "iisproxy";
                 if (!EventLog.SourceExists(source)) {
@@ -28,7 +28,7 @@ namespace ReverseProxy
         public void ProcessRequest(HttpContext context)
         {
             // Create the web request to communicate with the back-end site
-            string remoteUrl = ConfigurationSettings.AppSettings["ProxyUrl"] +
+            string remoteUrl = ConfigurationManager.AppSettings["ProxyUrl"] +
                     context.Request.Path;
             if (context.Request.QueryString.ToString() != "")
                 remoteUrl += "?" + context.Request.QueryString;
@@ -37,7 +37,7 @@ namespace ReverseProxy
             request.Method = context.Request.HttpMethod;
             request.ContentType = context.Request.ContentType;
             request.UserAgent = context.Request.UserAgent;
-            string basicPwd = ConfigurationSettings.AppSettings.Get("basicPwd");
+            string basicPwd = ConfigurationManager.AppSettings.Get("basicPwd");
             request.Credentials = basicPwd == null ?
                 CredentialCache.DefaultCredentials :
                 new NetworkCredential(HttpContext.Current.User.Identity.Name, basicPwd);
@@ -77,11 +77,11 @@ namespace ReverseProxy
             context.Response.ContentType = response.ContentType;
             if(response.Headers.Get("Location") != null)
             {
-                if(ConfigurationSettings.AppSettings.Get("traceRedirect") != null)
+                if(ConfigurationManager.AppSettings.Get("traceRedirect") != null)
                     event_log.WriteEntry("Back-end redirecting to: " + response.Headers.Get("Location"), EventLogEntryType.Information);
                 string urlSuffix = response.Headers.Get("Location");
-                if(urlSuffix.ToLower().StartsWith(ConfigurationSettings.AppSettings["ProxyUrl"].ToLower()))
-                    urlSuffix = urlSuffix.Substring(ConfigurationSettings.AppSettings["ProxyUrl"].Length);
+                if(urlSuffix.ToLower().StartsWith(ConfigurationManager.AppSettings["ProxyUrl"].ToLower()))
+                    urlSuffix = urlSuffix.Substring(ConfigurationManager.AppSettings["ProxyUrl"].Length);
                 context.Response.AddHeader("Location", context.Request.Url.GetLeftPart(UriPartial.Authority) + urlSuffix);
             }
             foreach(String each in response.Headers)
