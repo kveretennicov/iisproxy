@@ -29,16 +29,16 @@ Using The Script
     content, replacing {URL} with the URL of the back-end site. Note that the
     URL must not have any path component, or a trailing slash.
 
-    <configuration>
-        <appSettings>
-            <add key="proxyUrl" value="{URL}" />
-        </appSettings>
-        <system.web>
-            <httpHandlers>
-                <add verb="*" path="*" type="ReverseProxy.ReverseProxy, ReverseProxy" />
-            </httpHandlers>
-        </system.web>
-    </configuration>
+        <configuration>
+            <appSettings>
+                <add key="proxyUrl" value="{URL}" />
+            </appSettings>
+            <system.web>
+                <httpHandlers>
+                    <add verb="*" path="*" type="ReverseProxy.ReverseProxy, ReverseProxy" />
+                </httpHandlers>
+            </system.web>
+        </configuration>
 
 
 Directory Layout
