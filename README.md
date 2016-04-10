@@ -1,5 +1,8 @@
+
 IIS Reverse Proxy
 =================
+
+[![Build status](https://ci.appveyor.com/api/projects/status/v4rbwgojpj3bsmq7/branch/master?svg=true)](https://ci.appveyor.com/project/kveretennicov/iisproxy/branch/master)
 
 By Paul Johnston, http://pajhome.org.uk/
 
