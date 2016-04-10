@@ -1,0 +1,5 @@
+version: '{build}'
+build_script:
+- cmd: build.cmd
+artifacts:
+- path: out\*.*
